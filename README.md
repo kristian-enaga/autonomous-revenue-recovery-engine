@@ -1,59 +1,71 @@
-# ⚡ Autonomous Revenue Recovery & Cart Abandonment Engine
+# ⚡ Autonomous Revenue Recovery Engine (E-Commerce)
 
-An enterprise-grade, stateful e-commerce revenue recovery system built in Make.com. Features deterministic schema validation, AI email personalization via Gemini API, state delay handling, and automated error logging.
+An enterprise-grade, stateful cart recovery pipeline built in Make.com using custom webhooks, dynamic delay logic, Google Gemini API personalization, and automated email delivery.
 
 ![Autonomous Revenue Recovery Engine Canvas](./autonomous-revenue-recovery-engine-canvas.png)
-*Figure 1: Complete stateful workflow execution path in Make.com.*
+*Figure 1: Make.com scenario canvas showing webhook trigger, stateful delay tools, Gemini HTTP module, and mail routing.*
 
 ---
 
 ## 🎯 Business Problem
-E-commerce brands lose up to **70% of abandoned carts** due to generic, ill-timed follow-up sequences and fragile linear automations. Unhandled API rate limits, duplicate webhook events, and lack of dynamic state checks result in burnt domain reputations, high unsubscribes, and tens of thousands of dollars in unrecovered revenue.
+E-commerce brands lose up to **70% of abandoned carts** due to generic, ill-timed follow-up templates and fragile linear automations. Unhandled API rate limits, duplicate webhook events, and a lack of dynamic state checks result in awkward emails sent to customers who already purchased, damaged domain reputations, and thousands of dollars in lost monthly revenue.
 
 ---
 
 ## 🚀 Solution Overview
-This production-grade Make.com engine acts as an intelligent, self-healing revenue recovery gatekeeper:
+This production-grade Make.com engine acts as a state-aware cart recovery gatekeeper:
 
-1. **Deterministic Ingestion & Defensive Gates:** Validates customer checkout webhooks against strict schemas before executing any CRM or database writes.
-2. **Stateful Delay & Dynamic Evaluation:** Holds workflow execution to allow real-time customer purchase checks before firing recovery campaigns, eliminating redundant emails.
-3. **Gemini AI Personalization Engine:** Leverages Google Gemini API with dynamic prompt injection (cart items, cart value, customer history) to generate hyper-personalized recovery pitches.
-4. **Resilient Infrastructure:** Implements automatic retries, rate-limit management (HTTP 429 handling), and dead-letter queue routing for complete error isolation.
+1. **Webhook Ingestion & Payload Capture:** Instantly captures abandoned cart payloads containing customer details, cart items, total cart value, and delay parameters.
+2. **Stateful Delay & Purchase Evaluation:** Holds scenario execution using Make `Tools (Sleep/Delay)` to allow time for customer action, then dynamically verifies if the cart was already purchased before firing outreach.
+3. **Branching Logic Routing:**
+   * **`1st Cart Purchased`:** Instantly halts outreach if purchase status evaluates to true, protecting customer experience.
+   * **`1st Email Present?`:** Routes unpurchased carts into the personalized AI generation pipeline.
+4. **Gemini API Personalization Engine:** Calls the Google Gemini API (`v1beta` HTTP REST endpoint) with dynamic prompt injection (cart items, cart value, wait time) to generate high-converting, personalized recovery copy.
+5. **Text Parsing & Custom Mail Dispatch:** Leverages standard `Text Parser` to extract generated email bodies and subjects, then fires recovery emails via `Custom Mail`.
 
 ---
 
 ## 💰 Business Impact & ROI
-* **📈 Higher Recovered Revenue:** Dynamic AI personalization and stateful delay handling dramatically boost recovery email click-through rates compared to static templates.
-* **🛡️ Zero Data Loss Guarantee:** Defensive schema validation prevents corrupted or incomplete checkout payloads from writing to downstream analytics platforms.
-* **⚙️ Zero-Maintenance Reliability:** Built-in fail-safes handle API timeouts and network hiccups automatically without engineering intervention.
+* **📈 Higher Recovery Conversion:** Dynamic AI copy tailored to exact cart items dramatically outperforms static generic templates, directly increasing recovered checkout revenue.
+* **🛡️ Brand Reputation & Customer Experience Protection:** Stateful delay gates prevent redundant "buy this" emails from being dispatched to customers who already completed their checkout.
+* **⚙️ Zero-Maintenance Reliability:** Autonomous state handling eliminates manual campaign intervention and pipeline triage for growing e-commerce stores.
 
 ---
 
 ## 🧪 Live Execution Proof & Payload Verification
 
-### 1. Verified Execution Logs
+### 1. Successful Make.com Execution History
 ![Execution Log Success](./execution-log-success.png)
-*Figure 2: Make.com execution history confirming 100% successful state processing and workflow completion.*
+*Figure 2: Execution log proving 100% successful runs across all scenario paths and delay states.*
 
-### 2. Structured AI Output & Prompt Architecture
+### 2. Node Input / Output JSON Data Payload & AI Prompt Analysis
 ![Gemini Prompt Payload](./gemini-prompt-payload.png)
-*Figure 3: Structured Gemini API request payload showing system instructions, cart context, and prompt variables.*
+*Figure 3: Structured Gemini API request payload showing system instructions, cart context, and prompt variable injection.*
 
 ---
 
 ## 🛠️ Tech Stack & Integrations
-* **Orchestration Platform:** Make.com (Enterprise Architecture Standard)
-* **AI Engine:** Google Gemini API (Structured Prompts & System Instructions)
-* **API Standards:** REST HTTP, Dynamic Webhooks, Custom Exception Handling
-* **Data Integrity:** Schema Validation & Stateful Memory Handling
+* **Orchestration Platform:** Make.com (Enterprise Standard)
+* **AI Engine:** Google Gemini API (REST HTTP)
+* **Modules Used:** Custom Webhooks, Tools (Sleep/Delay), Text Parser, Custom Mail
+
+---
+
+## ⚡ Platform Agnostic Deployment (Make.com vs. n8n)
+
+While this blueprint is built for rapid deployment in Make.com, I also engineer and migrate this exact architecture to **self-hosted n8n**:
+
+* **💰 80%+ Operational Cost Reduction:** Eliminates Make.com operation limit tiers by executing unlimited runs on self-hosted n8n infrastructure.
+* **🛡️ Zero Data Privacy & Vendor Lock-in Risks:** Full end-to-end control over execution logs, customer data, and API keys.
+* **⚡ Native Error Triggers & DLQs:** Built-in sub-workflow error isolation and dead-letter queue routing for enterprise-scale volume.
 
 ---
 
 ## ⚙️ How to Import
 1. Download the `_Autonomous Revenue Recovery Engine (E-Commerce).blueprint.json` file from this repository.
-2. In Make.com, create a new scenario → **Import Blueprint**.
-3. Configure your `GEMINI_API_KEY` credential variable.
-4. Link your dynamic webhook URL to your e-commerce checkout platform (Shopify, WooCommerce, or custom API).
+2. Open Make.com → Scenarios → **Import Blueprint**.
+3. Insert your `GEMINI_API_KEY` parameter inside the HTTP module URL.
+4. Configure your SMTP/Custom Mail credentials and activate the webhook endpoint.
 
 ---
 
