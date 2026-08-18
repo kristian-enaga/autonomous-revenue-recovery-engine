@@ -1,0 +1,2553 @@
+{
+    "name": " Autonomous Revenue Recovery Engine (E-Commerce)",
+    "flow": [
+        {
+            "id": 2,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 3561347,
+                "maxResults": 1
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": -89,
+                    "y": 856,
+                    "name": "Inbound Cart Abandonment"
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "data": {
+                                "editable": "true"
+                            },
+                            "label": "My gateway-webhook webhook"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "type": "hook:gateway-webhook",
+                        "label": "Webhook",
+                        "required": true
+                    },
+                    {
+                        "name": "maxResults",
+                        "type": "number",
+                        "label": "Maximum number of results"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "event_id",
+                        "type": "text"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "text"
+                    },
+                    {
+                        "name": "customer",
+                        "spec": [
+                            {
+                                "name": "first_name",
+                                "type": "text"
+                            },
+                            {
+                                "name": "last_name",
+                                "type": "text"
+                            },
+                            {
+                                "name": "email",
+                                "type": "text"
+                            },
+                            {
+                                "name": "phone",
+                                "type": "text"
+                            }
+                        ],
+                        "type": "collection"
+                    },
+                    {
+                        "name": "cart",
+                        "spec": [
+                            {
+                                "name": "cart_id",
+                                "type": "text"
+                            },
+                            {
+                                "name": "status",
+                                "type": "text"
+                            },
+                            {
+                                "name": "total_amount",
+                                "type": "number"
+                            },
+                            {
+                                "name": "currency",
+                                "type": "text"
+                            },
+                            {
+                                "name": "checkout_url",
+                                "type": "text"
+                            },
+                            {
+                                "name": "items",
+                                "spec": {
+                                    "spec": [
+                                        {
+                                            "name": "sku",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "name": "name",
+                                            "type": "text"
+                                        },
+                                        {
+                                            "name": "quantity",
+                                            "type": "number"
+                                        },
+                                        {
+                                            "name": "price",
+                                            "type": "number"
+                                        }
+                                    ],
+                                    "type": "collection"
+                                },
+                                "type": "array"
+                            }
+                        ],
+                        "type": "collection"
+                    }
+                ],
+                "advanced": true
+            }
+        },
+        {
+            "id": 17,
+            "module": "supabase:upsertARecord",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 9890494
+            },
+            "filter": {
+                "name": "email present?",
+                "conditions": [
+                    [
+                        {
+                            "a": "{{2.customer.email}}",
+                            "o": "exist"
+                        }
+                    ]
+                ]
+            },
+            "mapper": {
+                "table": "cart_abandonments",
+                "cart_id": "{{2.cart.cart_id}}",
+                "cart_total": "{{2.cart.total_amount}}",
+                "checkout_url": "{{2.cart.checkout_url}}",
+                "customer_name": "{{2.customer.first_name}} {{2.customer.last_name}}",
+                "customer_email": "{{2.customer.email}}",
+                "recovery_status": "{{2.cart.status}}",
+                "last_contacted_at": "{{now}}"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 211,
+                    "y": 866,
+                    "name": "Write Raw Webhook Log"
+                },
+                "restore": {
+                    "expect": {
+                        "table": {
+                            "mode": "chose",
+                            "label": "cart_abandonments",
+                            "nested": [
+                                {
+                                    "help": "Defaults to gen_random_uuid(). Note:\nThis is a Primary Key.<pk/>",
+                                    "name": "id",
+                                    "type": "text",
+                                    "label": "id",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "Defaults to now(). ",
+                                    "name": "created_at",
+                                    "type": "text",
+                                    "label": "created_at",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "customer_email",
+                                    "type": "text",
+                                    "label": "customer_email",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "customer_name",
+                                    "type": "text",
+                                    "label": "customer_name",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "cart_total",
+                                    "type": "number",
+                                    "label": "cart_total",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "checkout_url",
+                                    "type": "text",
+                                    "label": "checkout_url",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "Defaults to pending. ",
+                                    "name": "recovery_status",
+                                    "type": "text",
+                                    "label": "recovery_status",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "last_contacted_at",
+                                    "type": "text",
+                                    "label": "last_contacted_at",
+                                    "options": null,
+                                    "required": false
+                                },
+                                {
+                                    "help": "",
+                                    "name": "cart_id",
+                                    "type": "text",
+                                    "label": "cart_id",
+                                    "options": null,
+                                    "required": false
+                                }
+                            ]
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "supabase"
+                            },
+                            "label": "Kristian's Supabase connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:supabase",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "required": true
+                    },
+                    {
+                        "name": "id",
+                        "type": "text"
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "text"
+                    },
+                    {
+                        "name": "customer_email",
+                        "type": "text"
+                    },
+                    {
+                        "name": "customer_name",
+                        "type": "text"
+                    },
+                    {
+                        "name": "cart_total",
+                        "type": "number"
+                    },
+                    {
+                        "name": "checkout_url",
+                        "type": "text"
+                    },
+                    {
+                        "name": "recovery_status",
+                        "type": "text"
+                    },
+                    {
+                        "name": "last_contacted_at",
+                        "type": "text"
+                    },
+                    {
+                        "name": "cart_id",
+                        "type": "text"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "id"
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "text",
+                        "label": "created_at"
+                    },
+                    {
+                        "name": "customer_email",
+                        "type": "text",
+                        "label": "customer_email"
+                    },
+                    {
+                        "name": "customer_name",
+                        "type": "text",
+                        "label": "customer_name"
+                    },
+                    {
+                        "name": "cart_total",
+                        "type": "text",
+                        "label": "cart_total"
+                    },
+                    {
+                        "name": "checkout_url",
+                        "type": "text",
+                        "label": "checkout_url"
+                    },
+                    {
+                        "name": "recovery_status",
+                        "type": "text",
+                        "label": "recovery_status"
+                    },
+                    {
+                        "name": "last_contacted_at",
+                        "type": "text",
+                        "label": "last_contacted_at"
+                    },
+                    {
+                        "name": "cart_id",
+                        "type": "text",
+                        "label": "cart_id"
+                    }
+                ]
+            },
+            "onerror": [
+                {
+                    "id": 26,
+                    "module": "builtin:Break",
+                    "version": 1,
+                    "parameters": {},
+                    "mapper": {
+                        "count": "3",
+                        "retry": true,
+                        "interval": "5"
+                    },
+                    "metadata": {
+                        "designer": {
+                            "x": 209,
+                            "y": 1254
+                        },
+                        "restore": {
+                            "expect": {
+                                "retry": {
+                                    "mode": "chose"
+                                }
+                            }
+                        },
+                        "expect": [
+                            {
+                                "name": "retry",
+                                "type": "boolean",
+                                "label": "Retry automatically",
+                                "required": true
+                            },
+                            {
+                                "name": "count",
+                                "type": "uinteger",
+                                "label": "Number of retries",
+                                "required": true,
+                                "validate": {
+                                    "max": 10000,
+                                    "min": 1
+                                }
+                            },
+                            {
+                                "name": "interval",
+                                "type": "uinteger",
+                                "label": "Minutes between retries",
+                                "required": true,
+                                "validate": {
+                                    "max": 44640,
+                                    "min": 1
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 62,
+            "module": "util:SetVariables",
+            "version": 1,
+            "parameters": {},
+            "filter": null,
+            "mapper": {
+                "scope": "roundtrip",
+                "variables": [
+                    {
+                        "name": "cart_id",
+                        "value": "{{17.id}}"
+                    },
+                    {
+                        "name": "customer_email",
+                        "value": "{{lower(trim(17.customer_email))}}"
+                    },
+                    {
+                        "name": "customer_name",
+                        "value": "{{ifempty(trim(17.customer_name); \"\"\"there\"\"\")}}"
+                    },
+                    {
+                        "name": "cart_total",
+                        "value": "{{parseNumber(17.cart_total; \"\"\".\"\"\")}}"
+                    },
+                    {
+                        "name": "checkout_url",
+                        "value": "{{17.checkout_url}}"
+                    },
+                    {
+                        "name": "Cart_id",
+                        "value": "{{17.cart_id}}"
+                    },
+                    {
+                        "name": "recovery_status",
+                        "value": "{{17.recovery_status}}"
+                    }
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 522,
+                    "y": 861,
+                    "name": "Validate & Sanitize Payload"
+                },
+                "restore": {
+                    "expect": {
+                        "scope": {
+                            "label": "One cycle"
+                        },
+                        "variables": {
+                            "items": [
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null,
+                                null
+                            ]
+                        }
+                    }
+                },
+                "expect": [
+                    {
+                        "name": "variables",
+                        "spec": {
+                            "name": "value",
+                            "spec": [
+                                {
+                                    "name": "name",
+                                    "type": "text",
+                                    "label": "Variable name",
+                                    "required": true
+                                },
+                                {
+                                    "name": "value",
+                                    "type": "any",
+                                    "label": "Variable value"
+                                }
+                            ],
+                            "type": "collection",
+                            "label": "Variable"
+                        },
+                        "type": "array",
+                        "label": "Variables",
+                        "validate": {
+                            "unique": {
+                                "by": "name"
+                            }
+                        }
+                    },
+                    {
+                        "name": "scope",
+                        "type": "select",
+                        "label": "Variable lifetime",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "roundtrip",
+                                "execution"
+                            ]
+                        }
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "cart_id",
+                        "type": "any",
+                        "label": "cart_id"
+                    },
+                    {
+                        "name": "customer_email",
+                        "type": "any",
+                        "label": "customer_email"
+                    },
+                    {
+                        "name": "customer_name",
+                        "type": "any",
+                        "label": "customer_name"
+                    },
+                    {
+                        "name": "cart_total",
+                        "type": "any",
+                        "label": "cart_total"
+                    },
+                    {
+                        "name": "checkout_url",
+                        "type": "any",
+                        "label": "checkout_url"
+                    },
+                    {
+                        "name": "Cart_id",
+                        "type": "any",
+                        "label": "Cart_id"
+                    },
+                    {
+                        "name": "recovery_status",
+                        "type": "any",
+                        "label": "recovery_status"
+                    }
+                ]
+            },
+            "onerror": [
+                {
+                    "id": 27,
+                    "module": "builtin:Rollback",
+                    "version": 1,
+                    "parameters": {},
+                    "mapper": {},
+                    "metadata": {
+                        "designer": {
+                            "x": 521,
+                            "y": 1240
+                        },
+                        "restore": {}
+                    }
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "module": "util:FunctionSleep",
+            "version": 1,
+            "parameters": {},
+            "mapper": {
+                "duration": "15"
+            },
+            "metadata": {
+                "designer": {
+                    "x": 825,
+                    "y": 854,
+                    "name": "Delay State Wait Horizon"
+                },
+                "restore": {},
+                "expect": [
+                    {
+                        "name": "duration",
+                        "type": "uinteger",
+                        "label": "Delay",
+                        "required": true,
+                        "validate": {
+                            "max": 300,
+                            "min": 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "id": 71,
+            "module": "supabase:searchRows",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 9898699
+            },
+            "mapper": {
+                "limit": "1",
+                "table": "cart_abandonments",
+                "search": [
+                    [
+                        {
+                            "a": "cart_id",
+                            "b": "{{62.Cart_id}}",
+                            "o": "text:eq."
+                        }
+                    ]
+                ]
+            },
+            "metadata": {
+                "designer": {
+                    "x": 1120,
+                    "y": 854,
+                    "name": "Verify Current Cart Status"
+                },
+                "restore": {
+                    "expect": {
+                        "table": {
+                            "mode": "chose",
+                            "label": "cart_abandonments",
+                            "nested": [
+                                {
+                                    "name": "search",
+                                    "type": "filter",
+                                    "label": "Search criteria",
+                                    "options": {
+                                        "logic": "and",
+                                        "store": [
+                                            {
+                                                "label": "id",
+                                                "value": "id"
+                                            },
+                                            {
+                                                "label": "created_at",
+                                                "value": "created_at"
+                                            },
+                                            {
+                                                "label": "customer_email",
+                                                "value": "customer_email"
+                                            },
+                                            {
+                                                "label": "customer_name",
+                                                "value": "customer_name"
+                                            },
+                                            {
+                                                "label": "cart_total",
+                                                "value": "cart_total"
+                                            },
+                                            {
+                                                "label": "checkout_url",
+                                                "value": "checkout_url"
+                                            },
+                                            {
+                                                "label": "recovery_status",
+                                                "value": "recovery_status"
+                                            },
+                                            {
+                                                "label": "last_contacted_at",
+                                                "value": "last_contacted_at"
+                                            },
+                                            {
+                                                "label": "cart_id",
+                                                "value": "cart_id"
+                                            }
+                                        ],
+                                        "operators": [
+                                            {
+                                                "label": "Text",
+                                                "options": [
+                                                    {
+                                                        "label": "Equals",
+                                                        "value": "text:eq."
+                                                    },
+                                                    {
+                                                        "label": "Does not equal",
+                                                        "value": "text:neq."
+                                                    },
+                                                    {
+                                                        "label": "Contains (case sensitive)",
+                                                        "value": "text:like."
+                                                    },
+                                                    {
+                                                        "label": "Contains (case insensitive)",
+                                                        "value": "text:ilike."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "Numbers",
+                                                "options": [
+                                                    {
+                                                        "label": "Equals",
+                                                        "value": "number:eq."
+                                                    },
+                                                    {
+                                                        "label": "Does not equal",
+                                                        "value": "number:neq."
+                                                    },
+                                                    {
+                                                        "label": "Greater than",
+                                                        "value": "number:gt."
+                                                    },
+                                                    {
+                                                        "label": "Less than",
+                                                        "value": "number:lt."
+                                                    },
+                                                    {
+                                                        "label": "Greater than or equal to",
+                                                        "value": "number:gte."
+                                                    },
+                                                    {
+                                                        "label": "Less than or equal to",
+                                                        "value": "number:lte."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "Date",
+                                                "options": [
+                                                    {
+                                                        "label": "Equals",
+                                                        "value": "date:eq."
+                                                    },
+                                                    {
+                                                        "label": "Does not equal",
+                                                        "value": "date:neq."
+                                                    },
+                                                    {
+                                                        "label": "Later than",
+                                                        "value": "date:gt."
+                                                    },
+                                                    {
+                                                        "label": "Earlier than",
+                                                        "value": "date:lt."
+                                                    },
+                                                    {
+                                                        "label": "Later than or equal to",
+                                                        "value": "date:gte."
+                                                    },
+                                                    {
+                                                        "label": "Earlier than or equal to",
+                                                        "value": "date:lte."
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "Boolean",
+                                                "options": [
+                                                    {
+                                                        "label": "Equals",
+                                                        "value": "boolean:eq."
+                                                    },
+                                                    {
+                                                        "label": "Does not equal",
+                                                        "value": "boolean:neq."
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "supabase"
+                            },
+                            "label": "Chan Supabase connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:supabase",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "table",
+                        "type": "select",
+                        "label": "Table",
+                        "required": true
+                    },
+                    {
+                        "name": "limit",
+                        "type": "uinteger",
+                        "label": "Limit"
+                    },
+                    {
+                        "name": "search",
+                        "type": "filter",
+                        "label": "Search criteria",
+                        "options": {
+                            "logic": "and",
+                            "store": [
+                                {
+                                    "label": "id",
+                                    "value": "id"
+                                },
+                                {
+                                    "label": "created_at",
+                                    "value": "created_at"
+                                },
+                                {
+                                    "label": "customer_email",
+                                    "value": "customer_email"
+                                },
+                                {
+                                    "label": "customer_name",
+                                    "value": "customer_name"
+                                },
+                                {
+                                    "label": "cart_total",
+                                    "value": "cart_total"
+                                },
+                                {
+                                    "label": "checkout_url",
+                                    "value": "checkout_url"
+                                },
+                                {
+                                    "label": "recovery_status",
+                                    "value": "recovery_status"
+                                },
+                                {
+                                    "label": "last_contacted_at",
+                                    "value": "last_contacted_at"
+                                },
+                                {
+                                    "label": "cart_id",
+                                    "value": "cart_id"
+                                }
+                            ],
+                            "operators": [
+                                {
+                                    "label": "Text",
+                                    "options": [
+                                        {
+                                            "label": "Equals",
+                                            "value": "text:eq."
+                                        },
+                                        {
+                                            "label": "Does not equal",
+                                            "value": "text:neq."
+                                        },
+                                        {
+                                            "label": "Contains (case sensitive)",
+                                            "value": "text:like."
+                                        },
+                                        {
+                                            "label": "Contains (case insensitive)",
+                                            "value": "text:ilike."
+                                        }
+                                    ]
+                                },
+                                {
+                                    "label": "Numbers",
+                                    "options": [
+                                        {
+                                            "label": "Equals",
+                                            "value": "number:eq."
+                                        },
+                                        {
+                                            "label": "Does not equal",
+                                            "value": "number:neq."
+                                        },
+                                        {
+                                            "label": "Greater than",
+                                            "value": "number:gt."
+                                        },
+                                        {
+                                            "label": "Less than",
+                                            "value": "number:lt."
+                                        },
+                                        {
+                                            "label": "Greater than or equal to",
+                                            "value": "number:gte."
+                                        },
+                                        {
+                                            "label": "Less than or equal to",
+                                            "value": "number:lte."
+                                        }
+                                    ]
+                                },
+                                {
+                                    "label": "Date",
+                                    "options": [
+                                        {
+                                            "label": "Equals",
+                                            "value": "date:eq."
+                                        },
+                                        {
+                                            "label": "Does not equal",
+                                            "value": "date:neq."
+                                        },
+                                        {
+                                            "label": "Later than",
+                                            "value": "date:gt."
+                                        },
+                                        {
+                                            "label": "Earlier than",
+                                            "value": "date:lt."
+                                        },
+                                        {
+                                            "label": "Later than or equal to",
+                                            "value": "date:gte."
+                                        },
+                                        {
+                                            "label": "Earlier than or equal to",
+                                            "value": "date:lte."
+                                        }
+                                    ]
+                                },
+                                {
+                                    "label": "Boolean",
+                                    "options": [
+                                        {
+                                            "label": "Equals",
+                                            "value": "boolean:eq."
+                                        },
+                                        {
+                                            "label": "Does not equal",
+                                            "value": "boolean:neq."
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "__IMTLENGTH__",
+                        "type": "uinteger",
+                        "label": "Total number of bundles"
+                    },
+                    {
+                        "name": "__IMTINDEX__",
+                        "type": "uinteger",
+                        "label": "Bundle order position"
+                    },
+                    {
+                        "name": "id",
+                        "type": "text",
+                        "label": "id"
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "text",
+                        "label": "created_at"
+                    },
+                    {
+                        "name": "customer_email",
+                        "type": "text",
+                        "label": "customer_email"
+                    },
+                    {
+                        "name": "customer_name",
+                        "type": "text",
+                        "label": "customer_name"
+                    },
+                    {
+                        "name": "cart_total",
+                        "type": "text",
+                        "label": "cart_total"
+                    },
+                    {
+                        "name": "checkout_url",
+                        "type": "text",
+                        "label": "checkout_url"
+                    },
+                    {
+                        "name": "recovery_status",
+                        "type": "text",
+                        "label": "recovery_status"
+                    },
+                    {
+                        "name": "last_contacted_at",
+                        "type": "text",
+                        "label": "last_contacted_at"
+                    },
+                    {
+                        "name": "cart_id",
+                        "type": "text",
+                        "label": "cart_id"
+                    }
+                ]
+            },
+            "onerror": [
+                {
+                    "id": 84,
+                    "module": "builtin:Break",
+                    "version": 1,
+                    "parameters": {},
+                    "mapper": {
+                        "retry": true,
+                        "count": "3",
+                        "interval": "2"
+                    },
+                    "metadata": {
+                        "designer": {
+                            "x": 1132,
+                            "y": 1230
+                        },
+                        "restore": {
+                            "expect": {
+                                "retry": {
+                                    "mode": "chose"
+                                }
+                            }
+                        },
+                        "expect": [
+                            {
+                                "name": "retry",
+                                "type": "boolean",
+                                "label": "Retry automatically",
+                                "required": true
+                            },
+                            {
+                                "name": "count",
+                                "type": "uinteger",
+                                "label": "Number of retries",
+                                "validate": {
+                                    "min": 1,
+                                    "max": 10000
+                                },
+                                "required": true
+                            },
+                            {
+                                "name": "interval",
+                                "type": "uinteger",
+                                "label": "Minutes between retries",
+                                "validate": {
+                                    "min": 1,
+                                    "max": 44640
+                                },
+                                "required": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "module": "builtin:BasicRouter",
+            "version": 1,
+            "mapper": null,
+            "metadata": {
+                "designer": {
+                    "x": 1414,
+                    "y": 842,
+                    "name": "State Check Routing"
+                }
+            },
+            "routes": [
+                {
+                    "flow": [
+                        {
+                            "id": 18,
+                            "module": "supabase:upsertARecord",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": 9898699
+                            },
+                            "filter": {
+                                "name": "Cart Purchased",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{71.recovery_status}}",
+                                            "b": "PURCHASED",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "table": "cart_abandonments",
+                                "id": "{{71.id}}",
+                                "recovery_status": "recovered",
+                                "last_contacted_at": "{{now}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1752,
+                                    "y": 1089,
+                                    "name": "Supabased - Mark as Recovered"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "label": "Chan Supabase connection",
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "supabase"
+                                            }
+                                        }
+                                    },
+                                    "expect": {
+                                        "table": {
+                                            "mode": "chose",
+                                            "nested": [
+                                                {
+                                                    "help": "Defaults to gen_random_uuid(). Note:\nThis is a Primary Key.<pk/>",
+                                                    "name": "id",
+                                                    "type": "text",
+                                                    "label": "id",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "Defaults to now(). ",
+                                                    "name": "created_at",
+                                                    "type": "text",
+                                                    "label": "created_at",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "customer_email",
+                                                    "type": "text",
+                                                    "label": "customer_email",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "customer_name",
+                                                    "type": "text",
+                                                    "label": "customer_name",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "cart_total",
+                                                    "type": "number",
+                                                    "label": "cart_total",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "checkout_url",
+                                                    "type": "text",
+                                                    "label": "checkout_url",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "Defaults to pending. ",
+                                                    "name": "recovery_status",
+                                                    "type": "text",
+                                                    "label": "recovery_status",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "last_contacted_at",
+                                                    "type": "text",
+                                                    "label": "last_contacted_at",
+                                                    "options": null,
+                                                    "required": false
+                                                }
+                                            ],
+                                            "label": "cart_abandonments"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:supabase",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "table",
+                                        "type": "select",
+                                        "label": "Table",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "id",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "created_at",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "customer_email",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "customer_name",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "cart_total",
+                                        "type": "number"
+                                    },
+                                    {
+                                        "name": "checkout_url",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "recovery_status",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "last_contacted_at",
+                                        "type": "text"
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "id",
+                                        "type": "text",
+                                        "label": "id"
+                                    },
+                                    {
+                                        "name": "created_at",
+                                        "type": "text",
+                                        "label": "created_at"
+                                    },
+                                    {
+                                        "name": "customer_email",
+                                        "type": "text",
+                                        "label": "customer_email"
+                                    },
+                                    {
+                                        "name": "customer_name",
+                                        "type": "text",
+                                        "label": "customer_name"
+                                    },
+                                    {
+                                        "name": "cart_total",
+                                        "type": "text",
+                                        "label": "cart_total"
+                                    },
+                                    {
+                                        "name": "checkout_url",
+                                        "type": "text",
+                                        "label": "checkout_url"
+                                    },
+                                    {
+                                        "name": "recovery_status",
+                                        "type": "text",
+                                        "label": "recovery_status"
+                                    },
+                                    {
+                                        "name": "last_contacted_at",
+                                        "type": "text",
+                                        "label": "last_contacted_at"
+                                    },
+                                    {
+                                        "name": "cart_id",
+                                        "type": "text",
+                                        "label": "cart_id"
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 19,
+                                    "module": "builtin:Commit",
+                                    "version": 1,
+                                    "parameters": {},
+                                    "mapper": {},
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 1750,
+                                            "y": 1410
+                                        },
+                                        "restore": {}
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "flow": [
+                        {
+                            "id": 63,
+                            "module": "http:MakeRequest",
+                            "version": 4,
+                            "parameters": {
+                                "authenticationType": "noAuth",
+                                "tlsType": ""
+                            },
+                            "filter": {
+                                "name": "Cart Abandoned",
+                                "conditions": [
+                                    [
+                                        {
+                                            "a": "{{71.recovery_status}}",
+                                            "b": "ABANDONED",
+                                            "o": "text:equal"
+                                        }
+                                    ],
+                                    [
+                                        {
+                                            "a": "{{71.recovery_status}}",
+                                            "b": "PENDING",
+                                            "o": "text:equal"
+                                        }
+                                    ]
+                                ]
+                            },
+                            "mapper": {
+                                "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=\"YOUR-API-KEY\"",
+                                "method": "post",
+                                "headers": [
+                                    {
+                                        "name": "Content-Type",
+                                        "value": "application/json"
+                                    }
+                                ],
+                                "contentType": "json",
+                                "parseResponse": true,
+                                "stopOnHttpError": true,
+                                "allowRedirects": true,
+                                "shareCookies": false,
+                                "requestCompressedContent": true,
+                                "inputMethod": "jsonString",
+                                "jsonStringBodyContent": "{\r\n  \"system_instruction\": {\r\n    \"parts\": [\r\n      {\r\n        \"text\": \"You are a warm, helpful, and empathetic customer success specialist for an e-commerce store named Chan. Write concise, human, and professional cart recovery emails. Avoid aggressive sales tactics, urgency spam, or robotic boilerplates. Focus on helpfulness, clarity, and reassuring the customer. Format the email_body value strictly using double line breaks (\\\\n\\\\n) between the greeting, body paragraphs, link, and sign-off so it renders with clear spacing. Always sign off strictly as 'Chan & The Customer Support Team'.\"\r\n      }\r\n    ]\r\n  },\r\n  \"contents\": [\r\n    {\r\n      \"role\": \"user\",\r\n      \"parts\": [\r\n        {\r\n          \"text\": \"Write a personalized 3-sentence cart recovery email based on these details:\\n- Customer Name: {{71.customer_name}}\\n- Cart Total: ${{71.cart_total}}\\n- Checkout URL: {{71.checkout_url}}\\n\\nRespond with a valid JSON object with keys 'subject' and 'email_body'.\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"generationConfig\": {\r\n    \"response_mime_type\": \"application/json\",\r\n    \"temperature\": 0.3,\r\n    \"maxOutputTokens\": 4000,\r\n    \"topP\": 0.9\r\n  }\r\n}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1582,
+                                    "y": 429,
+                                    "name": "[Gemini API] Draft Personalized Email Content"
+                                },
+                                "restore": {
+                                    "parameters": {
+                                        "authenticationType": {
+                                            "label": "No authenticationUse when no credentials are required for the request."
+                                        },
+                                        "tlsType": {
+                                            "label": "Empty"
+                                        }
+                                    },
+                                    "expect": {
+                                        "method": {
+                                            "mode": "chose",
+                                            "label": "POST"
+                                        },
+                                        "headers": {
+                                            "mode": "chose",
+                                            "items": [
+                                                null
+                                            ]
+                                        },
+                                        "queryParameters": {
+                                            "mode": "chose"
+                                        },
+                                        "contentType": {
+                                            "label": "application/jsonEnter data in the JSON format, as a string or using a data structure."
+                                        },
+                                        "parseResponse": {
+                                            "mode": "chose"
+                                        },
+                                        "stopOnHttpError": {
+                                            "mode": "chose"
+                                        },
+                                        "allowRedirects": {
+                                            "mode": "chose"
+                                        },
+                                        "shareCookies": {
+                                            "mode": "chose"
+                                        },
+                                        "requestCompressedContent": {
+                                            "mode": "chose"
+                                        },
+                                        "inputMethod": {
+                                            "label": "JSON stringEnter the JSON body as a raw text string. If values contain JSON reserved characters, you must escape them manually."
+                                        },
+                                        "paginationType": {
+                                            "label": "Empty"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "authenticationType",
+                                        "type": "select",
+                                        "label": "Authentication type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "noAuth",
+                                                "apiKey",
+                                                "basicAuth",
+                                                "oAuth"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "tlsType",
+                                        "type": "select",
+                                        "label": "Transport layer security (TLS)",
+                                        "validate": {
+                                            "enum": [
+                                                "mTls",
+                                                "tls"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "proxyKeychain",
+                                        "type": "keychain:proxy",
+                                        "label": "Proxy"
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "url",
+                                        "type": "url",
+                                        "label": "URL",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "method",
+                                        "type": "select",
+                                        "label": "Method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "get",
+                                                "head",
+                                                "post",
+                                                "put",
+                                                "patch",
+                                                "delete",
+                                                "options"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "type": "array",
+                                        "label": "Headers",
+                                        "spec": {
+                                            "name": "value",
+                                            "label": "Header",
+                                            "type": "collection",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "label": "Name",
+                                                    "type": "text",
+                                                    "required": true,
+                                                    "validate": {
+                                                        "pattern": "^[-!#$%&'*+.^_`|~0-9A-Za-z]+$"
+                                                    }
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "label": "Value",
+                                                    "type": "text"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "queryParameters",
+                                        "type": "array",
+                                        "label": "Query parameters",
+                                        "spec": {
+                                            "name": "value",
+                                            "label": "Parameter",
+                                            "type": "collection",
+                                            "spec": [
+                                                {
+                                                    "name": "name",
+                                                    "label": "Name",
+                                                    "type": "text",
+                                                    "required": true
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "label": "Value",
+                                                    "type": "text"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "contentType",
+                                        "type": "select",
+                                        "label": "Body content type",
+                                        "validate": {
+                                            "enum": [
+                                                "json",
+                                                "multipart",
+                                                "urlEncoded",
+                                                "custom"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "parseResponse",
+                                        "type": "boolean",
+                                        "label": "Parse response",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "stopOnHttpError",
+                                        "type": "boolean",
+                                        "label": "Return error if HTTP request fails",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "timeout",
+                                        "type": "uinteger",
+                                        "label": "Timeout",
+                                        "validate": {
+                                            "min": 1,
+                                            "max": 300
+                                        }
+                                    },
+                                    {
+                                        "name": "allowRedirects",
+                                        "type": "boolean",
+                                        "label": "Allow redirects",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "shareCookies",
+                                        "type": "boolean",
+                                        "label": "Share cookies with other HTTP modules",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "requestCompressedContent",
+                                        "type": "boolean",
+                                        "label": "Request compressed content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "inputMethod",
+                                        "type": "select",
+                                        "label": "Body input method",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "dataStructure",
+                                                "jsonString"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "jsonStringBodyContent",
+                                        "type": "text",
+                                        "label": "Body content",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "paginationType",
+                                        "type": "select",
+                                        "label": "Pagination type",
+                                        "validate": {
+                                            "enum": [
+                                                "offsetBased",
+                                                "pageBased",
+                                                "urlBased",
+                                                "tokenBased"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "data",
+                                        "label": "Data",
+                                        "type": "any"
+                                    },
+                                    {
+                                        "name": "statusCode",
+                                        "label": "Status Code",
+                                        "type": "number"
+                                    },
+                                    {
+                                        "name": "headers",
+                                        "label": "Headers",
+                                        "type": "collection",
+                                        "spec": [
+                                            {
+                                                "name": "content-length",
+                                                "label": "Content-Length",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "content-encoding",
+                                                "label": "Content-Encoding",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "content-type",
+                                                "label": "Content-Type",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "server",
+                                                "label": "Server",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "cache-control",
+                                                "label": "Cache-Control",
+                                                "type": "text"
+                                            },
+                                            {
+                                                "name": "set-cookie",
+                                                "label": "Set-Cookie",
+                                                "type": "array",
+                                                "spec": {
+                                                    "type": "text"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 85,
+                                    "module": "builtin:Break",
+                                    "version": 1,
+                                    "parameters": {},
+                                    "mapper": {
+                                        "retry": true,
+                                        "count": "3",
+                                        "interval": "2"
+                                    },
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 1578,
+                                            "y": 105
+                                        },
+                                        "restore": {
+                                            "expect": {
+                                                "retry": {
+                                                    "mode": "chose"
+                                                }
+                                            }
+                                        },
+                                        "expect": [
+                                            {
+                                                "name": "retry",
+                                                "type": "boolean",
+                                                "label": "Retry automatically",
+                                                "required": true
+                                            },
+                                            {
+                                                "name": "count",
+                                                "type": "uinteger",
+                                                "label": "Number of retries",
+                                                "validate": {
+                                                    "min": 1,
+                                                    "max": 10000
+                                                },
+                                                "required": true
+                                            },
+                                            {
+                                                "name": "interval",
+                                                "type": "uinteger",
+                                                "label": "Minutes between retries",
+                                                "validate": {
+                                                    "min": 1,
+                                                    "max": 44640
+                                                },
+                                                "required": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "id": 65,
+                            "module": "json:ParseJSON",
+                            "version": 1,
+                            "parameters": {},
+                            "filter": null,
+                            "mapper": {
+                                "json": "{{63.data.candidates[].content.parts[].text}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 1876,
+                                    "y": 428,
+                                    "name": "Parse Gemini Output"
+                                },
+                                "restore": {},
+                                "parameters": [
+                                    {
+                                        "name": "type",
+                                        "type": "udt",
+                                        "label": "Data structure"
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "json",
+                                        "type": "text",
+                                        "label": "JSON string",
+                                        "required": true
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "id": 21,
+                            "module": "supabase:upsertARecord",
+                            "version": 1,
+                            "parameters": {
+                                "__IMTCONN__": 9898699
+                            },
+                            "mapper": {
+                                "id": "{{71.id}}",
+                                "table": "cart_abandonments",
+                                "cart_id": "{{71.cart_id}}",
+                                "recovery_status": "RESOLVED",
+                                "last_contacted_at": "{{now}}"
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2165,
+                                    "y": 426,
+                                    "name": "Log Resolved Event"
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "table": {
+                                            "mode": "chose",
+                                            "label": "cart_abandonments",
+                                            "nested": [
+                                                {
+                                                    "help": "Defaults to gen_random_uuid(). Note:\nThis is a Primary Key.<pk/>",
+                                                    "name": "id",
+                                                    "type": "text",
+                                                    "label": "id",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "Defaults to now(). ",
+                                                    "name": "created_at",
+                                                    "type": "text",
+                                                    "label": "created_at",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "customer_email",
+                                                    "type": "text",
+                                                    "label": "customer_email",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "customer_name",
+                                                    "type": "text",
+                                                    "label": "customer_name",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "cart_total",
+                                                    "type": "number",
+                                                    "label": "cart_total",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "checkout_url",
+                                                    "type": "text",
+                                                    "label": "checkout_url",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "Defaults to pending. ",
+                                                    "name": "recovery_status",
+                                                    "type": "text",
+                                                    "label": "recovery_status",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "last_contacted_at",
+                                                    "type": "text",
+                                                    "label": "last_contacted_at",
+                                                    "options": null,
+                                                    "required": false
+                                                },
+                                                {
+                                                    "help": "",
+                                                    "name": "cart_id",
+                                                    "type": "text",
+                                                    "label": "cart_id",
+                                                    "options": null,
+                                                    "required": false
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "supabase"
+                                            },
+                                            "label": "Chan Supabase connection"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:supabase",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "table",
+                                        "type": "select",
+                                        "label": "Table",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "id",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "created_at",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "customer_email",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "customer_name",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "cart_total",
+                                        "type": "number"
+                                    },
+                                    {
+                                        "name": "checkout_url",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "recovery_status",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "last_contacted_at",
+                                        "type": "text"
+                                    },
+                                    {
+                                        "name": "cart_id",
+                                        "type": "text"
+                                    }
+                                ],
+                                "interface": [
+                                    {
+                                        "name": "id",
+                                        "type": "text",
+                                        "label": "id"
+                                    },
+                                    {
+                                        "name": "created_at",
+                                        "type": "text",
+                                        "label": "created_at"
+                                    },
+                                    {
+                                        "name": "customer_email",
+                                        "type": "text",
+                                        "label": "customer_email"
+                                    },
+                                    {
+                                        "name": "customer_name",
+                                        "type": "text",
+                                        "label": "customer_name"
+                                    },
+                                    {
+                                        "name": "cart_total",
+                                        "type": "text",
+                                        "label": "cart_total"
+                                    },
+                                    {
+                                        "name": "checkout_url",
+                                        "type": "text",
+                                        "label": "checkout_url"
+                                    },
+                                    {
+                                        "name": "recovery_status",
+                                        "type": "text",
+                                        "label": "recovery_status"
+                                    },
+                                    {
+                                        "name": "last_contacted_at",
+                                        "type": "text",
+                                        "label": "last_contacted_at"
+                                    },
+                                    {
+                                        "name": "cart_id",
+                                        "type": "text",
+                                        "label": "cart_id"
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 43,
+                                    "module": "builtin:Break",
+                                    "version": 1,
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 2163,
+                                            "y": 95
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "id": 9,
+                            "module": "google-email:sendAnEmail",
+                            "version": 4,
+                            "parameters": {
+                                "__IMTCONN__": 9023091
+                            },
+                            "mapper": {
+                                "to": [
+                                    "{{71.customer_email}}"
+                                ],
+                                "subject": "{{65.subject}}",
+                                "bodyType": "collection",
+                                "contents": [
+                                    {
+                                        "text": "{{65.email_body}}",
+                                        "image": {}
+                                    }
+                                ]
+                            },
+                            "metadata": {
+                                "designer": {
+                                    "x": 2446,
+                                    "y": 423,
+                                    "name": "Gmail - Dynamic Email Delivery "
+                                },
+                                "restore": {
+                                    "expect": {
+                                        "cc": {
+                                            "mode": "chose"
+                                        },
+                                        "to": {
+                                            "mode": "chose",
+                                            "items": [
+                                                null
+                                            ]
+                                        },
+                                        "bcc": {
+                                            "mode": "chose"
+                                        },
+                                        "from": {
+                                            "mode": "chose"
+                                        },
+                                        "bodyType": {
+                                            "label": "Collection of contents (text, images, etc.)"
+                                        },
+                                        "contents": {
+                                            "mode": "chose",
+                                            "items": [
+                                                null
+                                            ]
+                                        },
+                                        "signature": {
+                                            "mode": "chose"
+                                        },
+                                        "attachments": {
+                                            "mode": "chose"
+                                        },
+                                        "emailHeaders": {
+                                            "mode": "chose"
+                                        }
+                                    },
+                                    "parameters": {
+                                        "__IMTCONN__": {
+                                            "data": {
+                                                "scoped": "true",
+                                                "connection": "google-email"
+                                            },
+                                            "label": "My Gmail connection (enagakristianjay@gmail.com)"
+                                        }
+                                    }
+                                },
+                                "parameters": [
+                                    {
+                                        "name": "__IMTCONN__",
+                                        "type": "account:google-email",
+                                        "label": "Connection",
+                                        "required": true
+                                    }
+                                ],
+                                "expect": [
+                                    {
+                                        "name": "to",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "email",
+                                            "label": "Recipient email address",
+                                            "required": true,
+                                            "validate": true
+                                        },
+                                        "type": "array",
+                                        "label": "To",
+                                        "required": true
+                                    },
+                                    {
+                                        "name": "subject",
+                                        "type": "text",
+                                        "label": "Subject"
+                                    },
+                                    {
+                                        "name": "bodyType",
+                                        "type": "select",
+                                        "label": "Body type",
+                                        "required": true,
+                                        "validate": {
+                                            "enum": [
+                                                "rawHtml",
+                                                "collection"
+                                            ]
+                                        }
+                                    },
+                                    {
+                                        "name": "attachments",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "filename",
+                                                    "type": "filename",
+                                                    "label": "File name",
+                                                    "required": true,
+                                                    "semantic": "file:name"
+                                                },
+                                                {
+                                                    "name": "data",
+                                                    "type": "buffer",
+                                                    "label": "Data",
+                                                    "required": true,
+                                                    "semantic": "file:data"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Attachment"
+                                        },
+                                        "type": "array",
+                                        "label": "Attachments"
+                                    },
+                                    {
+                                        "name": "from",
+                                        "type": "select",
+                                        "label": "From"
+                                    },
+                                    {
+                                        "name": "cc",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "email",
+                                            "label": "Recipient email address"
+                                        },
+                                        "type": "array",
+                                        "label": "CC recipients"
+                                    },
+                                    {
+                                        "name": "bcc",
+                                        "spec": {
+                                            "name": "value",
+                                            "type": "email",
+                                            "label": "Recipient email address"
+                                        },
+                                        "type": "array",
+                                        "label": "BCC recipients"
+                                    },
+                                    {
+                                        "name": "emailHeaders",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "key",
+                                                    "type": "text",
+                                                    "label": "Key",
+                                                    "required": true
+                                                },
+                                                {
+                                                    "name": "value",
+                                                    "type": "text",
+                                                    "label": "Value"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Email header"
+                                        },
+                                        "type": "array",
+                                        "label": "Additional email headers"
+                                    },
+                                    {
+                                        "name": "contents",
+                                        "spec": {
+                                            "name": "value",
+                                            "spec": [
+                                                {
+                                                    "name": "text",
+                                                    "type": "text",
+                                                    "label": "Text"
+                                                },
+                                                {
+                                                    "name": "image",
+                                                    "spec": [
+                                                        {
+                                                            "name": "filename",
+                                                            "type": "filename",
+                                                            "label": "File name",
+                                                            "semantic": "file:name"
+                                                        },
+                                                        {
+                                                            "name": "data",
+                                                            "type": "buffer",
+                                                            "label": "Data",
+                                                            "semantic": "file:data"
+                                                        },
+                                                        {
+                                                            "name": "width",
+                                                            "type": "uinteger",
+                                                            "label": "Width"
+                                                        },
+                                                        {
+                                                            "name": "height",
+                                                            "type": "uinteger",
+                                                            "label": "Height"
+                                                        }
+                                                    ],
+                                                    "type": "collection",
+                                                    "label": "Image"
+                                                }
+                                            ],
+                                            "type": "collection",
+                                            "label": "Content"
+                                        },
+                                        "type": "array",
+                                        "label": "Body contents"
+                                    },
+                                    {
+                                        "name": "signature",
+                                        "type": "select",
+                                        "label": "Signature content"
+                                    }
+                                ]
+                            },
+                            "onerror": [
+                                {
+                                    "id": 81,
+                                    "module": "slack:CreateMessage",
+                                    "version": 4,
+                                    "parameters": {
+                                        "__IMTCONN__": 9100780
+                                    },
+                                    "filter": null,
+                                    "mapper": {
+                                        "text": "🚨 *Workflow Error Alert - Cart Recovery*\r\n- *Error Message:* {{error.message}}\r\n- *Cart ID:* {{71.cart_id}}\r\n- *Customer Email:* {{71.customer_email}}\r\n- *Timestamp:* {{now}}",
+                                        "parse": false,
+                                        "mrkdwn": true,
+                                        "channel": "C0BP9HMDCD7",
+                                        "channelType": "public",
+                                        "channelWType": "list"
+                                    },
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 2457,
+                                            "y": 786,
+                                            "name": "[Slack] Alert - Recovery Email Error"
+                                        },
+                                        "restore": {
+                                            "expect": {
+                                                "parse": {
+                                                    "mode": "chose"
+                                                },
+                                                "mrkdwn": {
+                                                    "mode": "chose"
+                                                },
+                                                "channel": {
+                                                    "mode": "chose",
+                                                    "label": "error-workflow"
+                                                },
+                                                "link_names": {
+                                                    "mode": "chose"
+                                                },
+                                                "channelType": {
+                                                    "label": "Public channel"
+                                                },
+                                                "channelWType": {
+                                                    "label": "Select from the list"
+                                                },
+                                                "unfurl_links": {
+                                                    "mode": "chose"
+                                                },
+                                                "unfurl_media": {
+                                                    "mode": "chose"
+                                                },
+                                                "reply_broadcast": {
+                                                    "mode": "chose"
+                                                }
+                                            },
+                                            "parameters": {
+                                                "__IMTCONN__": {
+                                                    "data": {
+                                                        "scoped": "true",
+                                                        "connection": "slack2"
+                                                    },
+                                                    "label": "chan (chan-3sj6723.slack.com - kchanchan2357)"
+                                                }
+                                            }
+                                        },
+                                        "parameters": [
+                                            {
+                                                "name": "__IMTCONN__",
+                                                "type": "account:slack2,slack3",
+                                                "label": "Connection",
+                                                "required": true
+                                            }
+                                        ],
+                                        "expect": [
+                                            {
+                                                "name": "channelWType",
+                                                "type": "select",
+                                                "label": "Enter a channel ID or name",
+                                                "required": true,
+                                                "validate": {
+                                                    "enum": [
+                                                        "manualy",
+                                                        "list"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "text",
+                                                "type": "text",
+                                                "label": "Text"
+                                            },
+                                            {
+                                                "name": "blocks",
+                                                "type": "text",
+                                                "label": "Blocks"
+                                            },
+                                            {
+                                                "name": "thread_ts",
+                                                "type": "text",
+                                                "label": "Thread message ID (time stamp)"
+                                            },
+                                            {
+                                                "name": "reply_broadcast",
+                                                "type": "boolean",
+                                                "label": "Reply broadcast"
+                                            },
+                                            {
+                                                "name": "link_names",
+                                                "type": "boolean",
+                                                "label": "Link names"
+                                            },
+                                            {
+                                                "name": "parse",
+                                                "type": "boolean",
+                                                "label": "Parse message text"
+                                            },
+                                            {
+                                                "name": "mrkdwn",
+                                                "type": "boolean",
+                                                "label": "Use markdown"
+                                            },
+                                            {
+                                                "name": "unfurl_links",
+                                                "type": "boolean",
+                                                "label": "Unfurl primarily text-based content"
+                                            },
+                                            {
+                                                "name": "unfurl_media",
+                                                "type": "boolean",
+                                                "label": "Unfurl media content"
+                                            },
+                                            {
+                                                "name": "icon_emoji",
+                                                "type": "text",
+                                                "label": "Icon emoji"
+                                            },
+                                            {
+                                                "name": "icon_url",
+                                                "type": "url",
+                                                "label": "Icon url"
+                                            },
+                                            {
+                                                "name": "username",
+                                                "type": "text",
+                                                "label": "User name"
+                                            },
+                                            {
+                                                "name": "channelType",
+                                                "type": "select",
+                                                "label": "Channel type",
+                                                "required": true,
+                                                "validate": {
+                                                    "enum": [
+                                                        "public",
+                                                        "private",
+                                                        "im",
+                                                        "mpim"
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "name": "channel",
+                                                "type": "select",
+                                                "label": "Public channel",
+                                                "required": true
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "id": 80,
+                                    "module": "builtin:Resume",
+                                    "version": 1,
+                                    "metadata": {
+                                        "designer": {
+                                            "x": 2466,
+                                            "y": 1085
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": true,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "eu1.make.com",
+        "notes": [
+            {
+                "moduleIds": [
+                    2
+                ],
+                "content": "<p><strong>This acts as an instant listener that captures high-intent prospects the second they drop out of your checkout funnel, ensuring zero delay in lead recovery.</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    21
+                ],
+                "content": "<p>Logs the generated AI outreach attempt back into the database to update state, prevent duplicate outreach, and track conversion analytics.</p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    9
+                ],
+                "content": "<p><strong>Dispatches personalized dynamic recovery emails straight to abandoned-cart customers using the structured output generated by AI</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    18
+                ],
+                "content": "<p><strong>Branches converted leads straight to a suppress/thank-you logic path.</strong><span>﻿</span></p>",
+                "isFilterNote": true,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    4
+                ],
+                "content": "<p><strong>We inject a calculated grace period to give buyers space to complete their purchase naturally, avoiding awkward automated emails to customers who are mid-checkout.</strong><span>﻿</span></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    26
+                ],
+                "content": "<ul><li>Captures failure during ingestion so lost network requests don't drop payloads.</li></ul><p></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    17
+                ],
+                "content": "<p><strong>Before processing anything, we buffer the raw data into an immediate log to enforce Tier 1 Zero-Data-Loss standards. Even if downstream APIs crash, your prospect data is never lost</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    62
+                ],
+                "content": "<p><strong>This acts as a strict schema gate that cleans, verifies, and standardizes customer phone numbers, emails, and cart totals before sending them to your CRM, preventing corrupt or duplicate records.</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    71
+                ],
+                "content": "<p><strong>A real-time check against your store backend to verify if the cart was converted or cleared before sending a recovery offer, saving campaign costs and customer frustration.</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    17
+                ],
+                "content": "<p>Filters out incomplete webhooks to prevent firing blank messages or incurring unnecessary API charges.<strong></strong></p>",
+                "isFilterNote": true,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    63
+                ],
+                "content": "<p><strong> Directs unrecovered high-value carts into the dynamic automated recovery sequence</strong></p>",
+                "isFilterNote": true,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    63
+                ],
+                "content": "<p><strong>Calls the Gemini 3.6 Flash model with dynamic prompt injection (customer cart items, price threshold, and delay duration) to generate a personalized, conversion-focused recovery pitch.</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    65
+                ],
+                "content": "<p><strong>Enforces structured JSON outputs from the AI before sending message content downstream. Converts raw AI responses into clean key-value pairs (Subject, Body, Discount Code)</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    18
+                ],
+                "content": "<p><strong>Updates your database instantly when a customer completes their purchase, marking the recovery campaign as successfully converted to maintain clean customer profiles.</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            },
+            {
+                "moduleIds": [
+                    81
+                ],
+                "content": "<p><strong>Sends real-time alerts to your internal sales or support team whenever gmail API Fails</strong></p>",
+                "isFilterNote": false,
+                "metadata": {
+                    "color": "#9138FE"
+                }
+            }
+        ]
+    }
+}
