@@ -1,6 +1,6 @@
 # ⚡ Autonomous Revenue Recovery Engine (E-Commerce)
 
-An enterprise-grade, stateful cart recovery pipeline built in Make.com using custom webhooks, dynamic delay logic, Google Gemini API personalization, Supabase state persistence, and automated email delivery.
+A stateful cart recovery pipeline built in Make.com using custom webhooks, dynamic delay logic, Google Gemini API personalization, Supabase state persistence, and automated email delivery.
 
 ![Autonomous Revenue Recovery Engine Canvas](./autonomous-revenue-recovery-engine-canvas.png)
 *Figure 1: Make.com scenario canvas showing webhook trigger, stateful delay tools, Supabase logging, Gemini HTTP module, and mail routing.*
