@@ -7,7 +7,7 @@ An automated, state-aware cart recovery engine built in Make.com featuring Supab
 
 [![Watch Loom Demo](https://img.shields.io/badge/Loom_Demo-Watch_System_Walkthrough-6B5B95?style=for-the-badge&logo=loom&logoColor=white)](https://www.loom.com/share/311bfc94eee1429080f6fe5ed3cf62c0)
 
-> 📹 **[Watch the 2-Minute Architecture & Live Execution Walkthrough on Loom](https://www.loom.com/share/311bfc94eee1429080f6fe5ed3cf62c0)**
+> 📹 **[Watch the 3-Minute Architecture & Live Execution Walkthrough on Loom](https://www.loom.com/share/311bfc94eee1429080f6fe5ed3cf62c0)**
 
 ---
 
