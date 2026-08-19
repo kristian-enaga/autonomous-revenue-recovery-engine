@@ -19,7 +19,7 @@ This production-grade Make.com engine acts as a state-aware cart recovery gateke
 2. **Stateful Delay & Purchase Evaluation:** Holds scenario execution using Make `Tools (Sleep/Delay)` to allow time for customer action, then dynamically verifies if the cart was already purchased before firing outreach.
 3. **Branching Logic Routing:**
    * **`1st Cart Purchased`:** Instantly halts outreach if purchase status evaluates to true, protecting customer experience.
-   * **`1st Email Present?`:** Routes unpurchased carts into the personalized AI generation pipeline.
+   * **`Cart Abandoned`:** Routes unpurchased carts into the personalized AI generation pipeline.
 4. **Gemini API Personalization Engine:** Calls the Google Gemini API (`v1beta` HTTP REST endpoint) with dynamic prompt injection (cart items, cart value, wait time) to generate high-converting, personalized recovery copy.
 5. **Text Parsing & Custom Mail Dispatch:** Leverages standard `Text Parser` to extract generated email bodies and subjects, then fires recovery emails via `Custom Mail`.
 6. **Supabase Logging & State Persistence:** Writes scenario execution data and recovery state directly to database tables for audit logging.
