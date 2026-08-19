@@ -24,6 +24,22 @@ This production-grade Make.com engine acts as a state-aware cart recovery gateke
 5. **Text Parsing & Custom Mail Dispatch:** Leverages standard `Text Parser` to extract generated email bodies and subjects, then fires recovery emails via `Custom Mail`.
 6. **Supabase Logging & State Persistence:** Writes scenario execution data and recovery state directly to database tables for audit logging.
 
+
+---
+
+## 🔌 System Compatibility & CRM Integration (GHL, HubSpot, Salesforce)
+
+While this workflow uses **Supabase** as its high-speed execution log, the entire system is completely **CRM-agnostic**. It operates as an independent backend engine that connects seamlessly into your existing marketing tech stack.
+
+Without changing the core recovery logic, the output nodes can be configured to sync directly with your preferred CRM or database:
+
+* **GoHighLevel (GHL):** Automatically create/update contacts, trigger `Abandoned Cart` tags, push custom AI email copy into notes, and advance leads through your sales pipeline.
+* **HubSpot / Salesforce / Klaviyo:** Sync AI-generated copy directly into customer timeline activities and custom properties for multi-channel follow-up.
+* **Custom Enterprise Databases:** Retain raw execution logs in Supabase, PostgreSQL, or Snowflake for reporting, privacy compliance, and audit trails.
+
+> **Key Client Benefit:** Zero vendor lock-in. You get enterprise-grade AI state management without migrating away from your current CRM or database setups.
+
+
 ---
 
 ## 💰 Business Impact & ROI
